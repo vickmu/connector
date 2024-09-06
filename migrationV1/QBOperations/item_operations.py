@@ -19,7 +19,4 @@ class ItemOperations(QBOperations):
         encoded_type = self.encode_input(item_data['Type'])
         encoded_active = self.encode_input(item_data['IsActive'])
 
-        if not self.item_exists(item_data['Name']):
-            self.cursor.execute(query, (encoded_name, encoded_type, encoded_active))
-        else:
-            print(f"Item '{item_data['Name']}' already exists, skipping insertion.")
+        self.cursor.execute(query, (encoded_name, encoded_type, encoded_active))
