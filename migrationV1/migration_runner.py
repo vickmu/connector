@@ -1,8 +1,8 @@
 import logging
-from config import QBConfig
-from excel_loader import ExcelLoader
+from util.config import QBConfig
+from util.excel_loader import ExcelLoader
 from migration import Migration
-from logger_config import setup_logging
+from util.logger_config import setup_logging
 
 setup_logging()
 
