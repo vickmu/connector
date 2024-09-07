@@ -76,7 +76,7 @@ class BillOperations(QBOperations):
         description = self.encode_input(bill_item_data['ItemLineDesc'])
         cost = self.encode_input(bill_item_data['ItemLineCost'])
         amount = self.encode_input(bill_item_data['ItemLineAmount'])
-        create_date = self.format_timestamp(bill_item_data['TimeCreated'])
+        create_date = self.format_date(bill_item_data['TxnDate'])
         quantity = self.encode_input(bill_item_data['ItemLineQuantity'])
         fq_save_to_cache = 0 if is_last_line else 1
 
@@ -84,7 +84,7 @@ class BillOperations(QBOperations):
             logger.warning(f"ItemLineItemRefListID is missing, skipping insertion.")
             return
         # Create full SQL query string with formatted values
-        full_query = f"INSERT INTO BillItemLine (VendorRefListID, RefNumber, ItemLineItemRefListID, ItemLineDesc, ItemLineCost, ItemLineAmount, TimeCreated, ItemLineQuantity, FQSaveToCache) VALUES ('{vendor_ref}', '{ref_number}', '{item_ref}', '{description}', {cost}, {amount}, {create_date}, {quantity}, {fq_save_to_cache})"
+        full_query = f"INSERT INTO BillItemLine (VendorRefListID, RefNumber, ItemLineItemRefListID, ItemLineDesc, ItemLineCost, ItemLineAmount, TxnDate, ItemLineQuantity, FQSaveToCache) VALUES ('{vendor_ref}', '{ref_number}', '{item_ref}', '{description}', {cost}, {amount}, {create_date}, {quantity}, {fq_save_to_cache})"
         logger.info(f"Executing SQL query:\n{full_query}")
         
         try:
