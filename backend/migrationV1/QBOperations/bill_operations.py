@@ -69,7 +69,7 @@ class BillOperations(QBOperations):
         # Prepare necessary fields
         vendor_ref = bill_item_data['VendorRefListID']
         item_ref = bill_item_data['ItemLineItemRefListID']
-        description = bill_item_data['ItemLineItemRefListID']  # Using item reference as description
+        description = bill_item_data['ItemLineDesc'] 
         cost = bill_item_data['ItemLineCost']
         amount = bill_item_data['ItemLineAmount']
         fq_save_to_cache = 0 if is_last_line else 1
