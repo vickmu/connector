@@ -59,11 +59,6 @@ class Migration:
                 is_last_line = (index == bill_items.index[-1])
                 self.bill_ops.insert_bill_item_line(bill_item, bill['RefNumber'], is_last_line=is_last_line)
 
-            # Once all items are inserted, create the Bill
-            txn_id = self.bill_ops.insert_bill(bill)
-            if txn_id:
-                txn_ids[bill['RefNumber']] = txn_id
-
         return txn_ids
 
     def run_migration(self):
