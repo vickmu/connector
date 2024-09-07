@@ -1,4 +1,7 @@
-from qb_operations import QBOperations
+from .qb_operations import QBOperations
+import logging
+
+logger = logging.getLogger(__name__)
 
 class ItemOperations(QBOperations):
     def item_exists(self, item_name):
@@ -19,4 +22,6 @@ class ItemOperations(QBOperations):
         encoded_type = self.encode_input(item_data['Type'])
         encoded_active = self.encode_input(item_data['IsActive'])
 
+        logger.info(f"Inserting item: {item_data['Name']}")
+        logger.info(f"Query: {query}")
         self.cursor.execute(query, (encoded_name, encoded_type, encoded_active))
