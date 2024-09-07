@@ -7,9 +7,8 @@ logger = logging.getLogger(__name__)
 class BillOperations(QBOperations):
     def bill_exists(self, ref_number):
         """Check if a bill already exists based on RefNumber."""
-        query = u"SELECT COUNT(*) FROM Bill WHERE RefNumber = ?"
-        encoded_ref = self.encode_input(ref_number)
-        self.cursor.execute(query, (encoded_ref,))
+        query = "SELECT COUNT(*) FROM Bill WHERE RefNumber = ?"
+        self.cursor.execute(query, (ref_number,))
         result = self.cursor.fetchone()
         return result[0] > 0
 
@@ -26,31 +25,33 @@ class BillOperations(QBOperations):
         return f"{{d'{date_value.strftime('%Y-%m-%d')}'}}" if date_value else "NULL"
 
     def insert_bill(self, bill_data):
-        """Insert a bill into the database."""
+        """Insert a bill into the database and log the full query."""
         query = """
-        INSERT INTO Bill (VendorRefListID, APAccountRefListID, TxnDate, RefNumber, TermsRefListID, DueDate)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO Bill (VendorRefListID, APAccountRefListID, TxnDate, RefNumber, DueDate)
+        VALUES (?, ?, ?, ?, ?)
         """
         
-        # Encode necessary fields
-        vendor_ref = bill_data['VendorRefListID']  # No encoding needed, direct reference
-        ap_account_ref = bill_data['APAccountRefListID']  # No encoding needed, direct reference
-        txn_date = self.format_date(bill_data['TxnDate'])  # Format date to {d'YYYY-MM-DD'}
-        due_date = self.format_date(bill_data['DueDate'])  # Format date to {d'YYYY-MM-DD'}
+        # Prepare necessary fields
+        vendor_ref = bill_data['VendorRefListID']
+        ap_account_ref = bill_data['APAccountRefListID']
+        txn_date = self.format_date(bill_data['TxnDate'])
+        due_date = self.format_date(bill_data['DueDate'])
         
         # Handle RefNumber generation
         ref_number = self.generate_unique_ref_number(bill_data['RefNumber'])
         
-        encoded_memo = self.encode_input(bill_data.get('Memo', ''))  # Default to empty string if missing
-        terms_ref = bill_data.get('TermsRefListID', 'Net 30')  # Default terms
+        memo = bill_data.get('Memo', '')  # Default to empty string if missing
 
-        # Log the data being inserted
-        logger.info(f"Inserting bill with VendorRefListID={vendor_ref}, APAccountRefListID: {ap_account_ref}, TxnDate={txn_date},"
-        f"DueDate={due_date}, RefNumber={ref_number}, Memo={encoded_memo}")
+        # Create full SQL query string with formatted values
+        full_query = f"""
+        INSERT INTO Bill (VendorRefListID, APAccountRefListID, TxnDate, RefNumber, DueDate)
+        VALUES ('{vendor_ref}', '{ap_account_ref}', {txn_date}, '{ref_number}', {due_date})
+        """
+        logger.info(f"Executing SQL query:\n{full_query}")
 
         try:
-            # Insert the bill header
-            self.cursor.execute(query, (vendor_ref, ap_account_ref, txn_date, ref_number, terms_ref, due_date))
+            # Execute the bill insert query
+            self.cursor.execute(query, (vendor_ref, ap_account_ref, txn_date, ref_number, due_date))
             
             # Retrieve the generated transaction ID (TxnID)
             self.cursor.execute("SELECT @@IDENTITY AS TxnID")
@@ -63,24 +64,30 @@ class BillOperations(QBOperations):
         return txn_id
 
     def insert_bill_item_line(self, bill_item_data, ref_number, is_last_line=False):
-        """Insert a BillItemLine into the database."""
-        query = """
-        INSERT INTO BillItemLine (VendorRefListID, RefNumber, ItemLineItemRefListID, ItemLineDesc, ItemLineCost, ItemLineAmount, FQSaveToCache)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-        """
+        """Insert a BillItemLine into the database and log the full SQL query with values."""
         
-        # Encode necessary fields
-        vendor_ref = bill_item_data['VendorRefListID']  # No encoding needed, direct reference
-        item_ref = bill_item_data['ItemLineItemRefListID']  # Item reference
-        description = bill_item_data['ItemLineDesc']  # Item description
-        cost = bill_item_data['ItemLineCost']  # Cost per item
-        amount = bill_item_data['ItemLineAmount']  # Total amount
-        fq_save_to_cache = 0 if is_last_line else 1  # Set FQSaveToCache
+        # Prepare necessary fields
+        vendor_ref = bill_item_data['VendorRefListID']
+        item_ref = bill_item_data['ItemLineItemRefListID']
+        description = bill_item_data['ItemLineItemRefListID']  # Using item reference as description
+        cost = bill_item_data['ItemLineCost']
+        amount = bill_item_data['ItemLineAmount']
+        fq_save_to_cache = 0 if is_last_line else 1
 
+        # Create full SQL query string with formatted values
+        full_query = f"""
+        INSERT INTO BillItemLine (VendorRefListID, RefNumber, ItemLineItemRefListID, ItemLineDesc, ItemLineCost, ItemLineAmount, FQSaveToCache)
+        VALUES ('{vendor_ref}', '{ref_number}', '{item_ref}', '{description}', {cost}, {amount}, {fq_save_to_cache})
+        """
+        logger.info(f"Executing SQL query:\n{full_query}")
+        
         try:
-            # Insert the bill item line
+            # Execute the bill item line insert query
+            query = """
+            INSERT INTO BillItemLine (VendorRefListID, RefNumber, ItemLineItemRefListID, ItemLineDesc, ItemLineCost, ItemLineAmount, FQSaveToCache)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """
             self.cursor.execute(query, (vendor_ref, ref_number, item_ref, description, cost, amount, fq_save_to_cache))
-            logger.info(f"Inserting BillItemLine with RefNumber={ref_number}, FQSaveToCache={fq_save_to_cache}")
 
         except Exception as e:
             logger.error(f"Error inserting BillItemLine: {str(e)}")
@@ -88,6 +95,6 @@ class BillOperations(QBOperations):
     
     def list_bills_by_ref_number(self): 
         """List all bills by RefNumber."""
-        query = u"SELECT RefNumber FROM Bill"
+        query = "SELECT RefNumber FROM Bill"
         self.cursor.execute(query)
         return self.cursor.fetchall()
