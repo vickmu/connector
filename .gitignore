@@ -4,3 +4,4 @@ __pycache__
 build
 dist
 myenv
+node_modules
