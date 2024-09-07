@@ -23,6 +23,10 @@ class BillOperations(QBOperations):
     def format_date(self, date_value):
         """Format the date for QuickBooks insert (in {d'YYYY-MM-DD'} format)."""
         return f"{{d'{date_value.strftime('%Y-%m-%d')}'}}" if date_value else "NULL"
+    
+    def format_timestamp(self, datetime_value):
+        """Format the timestamp for QuickBooks insert (in {ts'YYYY-MM-DD HH:MM:SS'} format)."""
+        return f"{{ts'{datetime_value.strftime('%Y-%m-%d %H:%M:%S')}'}}" if datetime_value else "NULL"
 
     def insert_bill(self, bill_data):
         """Insert a bill into the database and log the full query."""
@@ -72,7 +76,7 @@ class BillOperations(QBOperations):
         description = self.encode_input(bill_item_data['ItemLineDesc'])
         cost = self.encode_input(bill_item_data['ItemLineCost'])
         amount = self.encode_input(bill_item_data['ItemLineAmount'])
-        create_date = self.encode_input(bill_item_data['TimeCreated'])
+        create_date = self.format_timestamp(bill_item_data['TimeCreated'])
         quantity = self.encode_input(bill_item_data['ItemLineQuantity'])
         fq_save_to_cache = 0 if is_last_line else 1
 
@@ -88,6 +92,7 @@ class BillOperations(QBOperations):
 
         except Exception as e:
             logger.error(f"Error inserting BillItemLine: {str(e)}")
+            raise
     
     def list_bills_by_ref_number(self): 
         """List all bills by RefNumber."""
