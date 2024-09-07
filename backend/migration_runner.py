@@ -1,6 +1,8 @@
 import logging
 import tkinter as tk
 from tkinter import filedialog, simpledialog
+
+import pandas as pd
 from migrationV1.util.config import QBConfig
 from migrationV1.util.excel_loader import ExcelLoader
 from migrationV1.migration import Migration
@@ -48,7 +50,7 @@ def main():
 
     # Step 3: Load Excel data
     excel_loader = ExcelLoader(file_path)
-    vendors_df, items_df, bills_df, bill_items_df = excel_loader.load_data()
+    bills_df, bill_items_df = excel_loader.load_data()
     logger.info("Excel data loaded successfully.")
 
     # Step 4: Connect to QuickBooks via QODBC
@@ -57,7 +59,7 @@ def main():
 
     if conn:
         # Step 5: Run the migration
-        migration = Migration(conn, vendors_df, items_df, bills_df, bill_items_df)
+        migration = Migration(conn, pd.DataFrame(), pd.DataFrame(), bills_df, bill_items_df)
         migration.run_migration()
 
 if __name__ == "__main__":

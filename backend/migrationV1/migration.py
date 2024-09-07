@@ -1,7 +1,7 @@
 import logging
-from QBOperations.vendor_operations import VendorOperations
-from QBOperations.item_operations import ItemOperations
-from QBOperations.bill_operations import BillOperations
+from .QBOperations.vendor_operations import VendorOperations
+from .QBOperations.item_operations import ItemOperations
+from .QBOperations.bill_operations import BillOperations
 import traceback
 logger = logging.getLogger(__name__)
 
@@ -37,8 +37,8 @@ class Migration:
                 logger.info(f"Item '{item['Name']}' already exists, skipping insertion.")
                 continue
             logger.info(f"Inserting item: {item['Name']}")
-            self.item_ops.insert_item(item)    
-    
+            self.item_ops.insert_item(item)
+
     def migrate_bills_and_items(self):
         """Migrate bills and their associated items."""
         logger.info("Starting bill and item migration...")
@@ -46,7 +46,7 @@ class Migration:
 
         bills = self.bill_ops.list_bills_by_ref_number()
         bills_ref_list = [bill[0] for bill in bills]
-        
+
         # Migrate each bill and its items
         for _, bill in self.bills_df.iterrows():
             if bill['RefNumber'] in bills_ref_list:
@@ -64,7 +64,7 @@ class Migration:
     def run_migration(self):
         """Run the full migration process."""
         try:
-            self.migrate_vendors()
+            # self.migrate_vendors()
             # self.migrate_items()
             self.migrate_bills_and_items()
 

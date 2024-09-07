@@ -14,18 +14,6 @@ class ExcelLoader:
             return None
 
     def load_data(self):
-        # Handle non existing tabs
-        if not self.load_sheet('Vendor'):
-            logger.warning("Vendor sheet not found in the Excel file.")
-        if not self.load_sheet('Item'):
-            logger.warning("Item sheet not found in the Excel file.")
-        if not self.load_sheet('Bill'):
-            logger.warning("Bill sheet not found in the Excel file.")
-        if not self.load_sheet('BillItemLine'):
-            logger.warning("BillItemLine sheet not found in the Excel file.")
-        
-        vendors_df = self.load_sheet('Vendor')
-        items_df = self.load_sheet('Item')
         bills_df = self.load_sheet('Bill')
         bill_items_df = self.load_sheet('BillItemLine')
-        return vendors_df, items_df, bills_df, bill_items_df
+        return bills_df, bill_items_df
