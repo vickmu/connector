@@ -1,4 +1,4 @@
-from qb_operations import QBOperations
+from .qb_operations import QBOperations
 
 class VendorOperations(QBOperations):
     def vendor_exists(self, vendor_name):
