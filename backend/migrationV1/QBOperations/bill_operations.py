@@ -75,19 +75,11 @@ class BillOperations(QBOperations):
         fq_save_to_cache = 0 if is_last_line else 1
 
         # Create full SQL query string with formatted values
-        full_query = f"""
-        INSERT INTO BillItemLine (VendorRefListID, RefNumber, ItemLineItemRefListID, ItemLineDesc, ItemLineCost, ItemLineAmount, FQSaveToCache)
-        VALUES ('{vendor_ref}', '{ref_number}', '{item_ref}', '{description}', {cost}, {amount}, {fq_save_to_cache})
-        """
+        full_query = f"INSERT INTO BillItemLine (VendorRefListID, RefNumber, ItemLineItemRefListID, ItemLineDesc, ItemLineCost, ItemLineAmount, FQSaveToCache) VALUES ('{vendor_ref}', '{ref_number}', '{item_ref}', '{description}', {cost}, {amount}, {fq_save_to_cache})"
         logger.info(f"Executing SQL query:\n{full_query}")
         
         try:
-            # Execute the bill item line insert query
-            query = """
-            INSERT INTO BillItemLine (VendorRefListID, RefNumber, ItemLineItemRefListID, ItemLineDesc, ItemLineCost, ItemLineAmount, FQSaveToCache)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            """
-            self.cursor.execute(query, (vendor_ref, ref_number, item_ref, description, cost, amount, fq_save_to_cache))
+            self.cursor.execute(full_query)
 
         except Exception as e:
             logger.error(f"Error inserting BillItemLine: {str(e)}")
