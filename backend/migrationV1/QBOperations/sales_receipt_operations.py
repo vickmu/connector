@@ -20,6 +20,9 @@ class SalesReceiptOperations(QBOperations):
         self.cursor.execute(query)
         return self.cursor.fetchall()
 
+    def get_sales_receipt_id_after_date(self, date)
+        pass
+
     def insert_sales_receipt_item_line(
         self, sales_item_data, ref_number, is_last_line=False
     ):

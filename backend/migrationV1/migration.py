@@ -110,12 +110,26 @@ class Migration:
         logger.info(f"Customers types: {id_type}")
         id_type['Default Customer Type'] = 'DWK'
         for _, customer in self.customers_df.iterrows():
-            if customer['FullName'] in customers_name_list:
+            if customer['Name'] in customers_name_list:
                 continue            
             customer['CustomerTypeRefListID'] = id_type[
                 customer.get('CustomerTypeRefFullName', 'Default Customer Type')
             ]
             self.customer_ops.insert_customer(customer)
+    
+    def migrate_customers_and_sales_receipt_items(self): 
+        """
+        Iterates through the sales receipt items, checks if a customer ListID exists 
+            If customer does not exist, creates a custdomer
+        
+        """
+        logger.info('Migrating customers and sales receipts')
+        customers = self.customer_ops.list_customers_by_fullname()
+        customers_names_list = [customer[0] for customer in customers]
+
+        for _, receipt_line_item in self.sales_receipt_items_df: 
+            if receipt_line_item['RefNumber'] 
+            
         
     def run_migration(self, migration_type: MigrationType):
         """Run the full migration process."""

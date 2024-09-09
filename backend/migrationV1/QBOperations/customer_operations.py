@@ -19,7 +19,7 @@ class CustomerOperations(QBOperations):
 
     def list_customers_by_fullname(self):
         """List all customers by Name."""
-        query = "SELECT FullName FROM Customer"
+        query = "SELECT Name FROM Customer"
         self.cursor.execute(query)
         return self.cursor.fetchall()
     
@@ -118,7 +118,8 @@ class CustomerOperations(QBOperations):
             # Execute the query
             self.cursor.execute(query)
             self.conn.commit()
-            print(f"Customer {name } inserted successfully.")
+            logger.error(f"Customer {name } inserted successfully.")
         except Exception as e:
-            print(f"Error inserting customer: {str(e)}")
-            self.conn.rollback()
+            logger.error(f"Error inserting customer: {str(e)}")
+            logger.error(f"Customer: {customer_data}")
+            # self.conn.rollback()
