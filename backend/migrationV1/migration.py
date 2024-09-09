@@ -1,16 +1,28 @@
 import logging
-
+import pandas as pd
 from .QBOperations.customer_operations import CustomerOperations
 from .QBOperations.vendor_operations import VendorOperations
 from .QBOperations.item_operations import ItemOperations
 from .QBOperations.bill_operations import BillOperations
 from .QBOperations.sales_receipt_operations import SalesReceiptOperations
 from .QBOperations.qb_operations import QBOperations
+from migrationV1.migration_type import MigrationType
+
 import traceback
 logger = logging.getLogger(__name__)
 
 class Migration:
-    def __init__(self, connection, vendors_df, items_df, bills_df, bill_items_df, sales_receipt_df, sales_receipt_items_df, customers_df):
+    def __init__(
+        self,
+        connection,
+        vendors_df=pd.DataFrame(), 
+        items_df=pd.DataFrame(),
+        bills_df=pd.DataFrame(), 
+        bill_items_df=pd.DataFrame(),
+        sales_receipt_df=pd.DataFrame(),
+        sales_receipt_items_df=pd.DataFrame(),
+        customers_df=pd.DataFrame()
+    ):
         
         self.connection = connection
         self.vendors_df = vendors_df
@@ -102,22 +114,32 @@ class Migration:
             ]
             self.customer_ops.insert_customer(customer)
         
-    def run_migration(self, migration_type):
+    def run_migration(self, migration_type: MigrationType):
         """Run the full migration process."""
-        try:
-            # self.migrate_vendors()
-            # self.migrate_items()
-            # self.migrate_bills_and_items()
-            self.migrate_customers()
-            # self.migrate_sales_receipts_and_items()
-            logger.info("Committing transaction...")
-            QBOperations(self.connection).commit()
-            logger.info("Migration process completed successfully.")
-
-        except Exception as e:
+        try: 
+            if migration_type == MigrationType.VENDORS.value:
+                self.migrate_vendors()
+                QBOperations(self.connection).commit()
+                
+            elif migration_type == MigrationType.ITEMS.value:
+                self.migrate_items()
+                QBOperations(self.connection).commit()
+            
+            elif migration_type == MigrationType.BILLS.value:
+                self.migrate_bills_and_items()
+                QBOperations(self.connection).commit()
+                
+            elif migration_type == MigrationType.SALES_RECEIPTS.value:
+                self.migrate_sales_receipts_and_items()
+                QBOperations(self.connection).commit()
+            
+            elif migration_type == MigrationType.CUSTOMERS.value:
+                self.migrate_customers()
+                QBOperations(self.connection).commit()
+                
+        except Exception as e: 
             logger.error(f"An error occurred during migration: {e}")
             logger.error(traceback.format_exc())
             self.vendor_ops.conn.rollback()
-            logger.info("Transaction rolled back.")
         finally:
-            self.vendor_ops.close()  # Ensure connection is closed
+            self.vendor_ops.close()

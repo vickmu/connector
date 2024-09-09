@@ -84,15 +84,33 @@ def main():
     if conn:
         # Step 6: Run the migration based on the selected type
         if migration_type == MigrationType.BILLS.value:
-            migration = Migration(conn, bills_df=bills_df, bill_items_df=bill_items_df)
+            migration = Migration(
+                conn, 
+                bills_df=bills_df,
+                bill_items_df=bill_items_df
+            )
         elif migration_type == MigrationType.SALES_RECEIPTS.value:
-            migration = Migration(conn, sales_receipts_df=sales_receipts_df, sales_receipt_items_df=sales_receipt_items_df)
+            migration = Migration(
+                conn,
+                sales_receipts_df=sales_receipts_df,
+                sales_receipt_items_df=sales_receipt_items_df
+            )
         elif migration_type == MigrationType.CUSTOMERS.value:
-            migration = Migration(conn, customers_df=customers_df)
+            migration = Migration(
+                conn,
+                customers_df=customers_df
+            )
         elif migration_type == MigrationType.FULL.value:
-            migration = Migration(conn, bills_df=bills_df, bill_items_df=bill_items_df, sales_receipts_df=sales_receipts_df, sales_receipt_items_df=sales_receipt_items_df, customers_df=customers_df)
+            migration = Migration(
+                conn, 
+                bills_df=bills_df,
+                bill_items_df=bill_items_df,
+                sales_receipts_df=sales_receipts_df,
+                sales_receipt_items_df=sales_receipt_items_df,
+                customers_df=customers_df
+            )
 
-        migration.run_migration()
+        migration.run_migration(migration_type)
 
 if __name__ == "__main__":
     main()
