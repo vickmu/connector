@@ -1,6 +1,6 @@
 import logging
 import tkinter as tk
-from tkinter import filedialog, simpledialog
+from tkinter import filedialog, simpledialog, ttk
 
 import pandas as pd
 from migrationV1.util.config import QBConfig
@@ -30,20 +30,24 @@ def get_dsn_name():
     return dsn_name
 
 def get_migration_type():
-    """Display a Tkinter radio button dialog to select the type of migration."""
+    """Display a Tkinter dropdown dialog to select the type of migration."""
     root = tk.Tk()
     root.title("Select Migration Type")
 
-    # Default migration type
     migration_type = tk.StringVar()
-    migration_type.set(MigrationType.FULL.value)
+    migration_type.set(MigrationType.FULL.value)  # Set default value
 
-    def on_select():
-        root.quit()  # Close the window once a selection is made
+    # Create a dropdown (combobox) for migration type selection
+    dropdown = ttk.Combobox(root, textvariable=migration_type, state="readonly")
+    dropdown['values'] = [mt.value for mt in MigrationType]
+    dropdown.pack(pady=10)
 
-    # Create radio buttons for each migration type
-    for mt in MigrationType:
-        tk.Radiobutton(root, text=mt.value, variable=migration_type, value=mt.value, command=on_select).pack(anchor=tk.W)
+    def on_submit():
+        root.quit()  # Close the window when Submit is clicked
+
+    # Add a Submit button
+    submit_button = tk.Button(root, text="Submit", command=on_submit)
+    submit_button.pack(pady=10)
 
     root.mainloop()
 
