@@ -11,13 +11,17 @@ class ExcelLoader:
             return pd.read_excel(self.file_path, sheet_name=sheet_name)
         except Exception as e:
             print(f"Error loading {sheet_name}: {e}")
-            return None
+            return pd.DataFrame()
 
     def load_data(self):
-        bills_df = self.load_sheet('Bill')
-        bill_items_df = self.load_sheet('BillItemLine')
-        sales_receipts_df = self.load_sheet('SalesReceipt')
-        sales_receipt_items_df = self.load_sheet('SalesReceiptItemLine')
-        customers_df = self.load_sheet('Customer')
+        available_sheet_names = pd.ExcelFile(self.file_path).sheet_names
+        logger.info(f"Available sheets: {available_sheet_names}")
+        current_sheet_names = ['Bill', 'BillItemLine', 'SalesReceipt', 'SalesReceiptItemLine', 'Customer']
+        
+        bills_df = self.load_sheet('Bill') if 'Bill' in available_sheet_names else pd.DataFrame()
+        bill_items_df = self.load_sheet('BillItemLine') if 'BillItemLine' in available_sheet_names else pd.DataFrame()
+        sales_receipts_df = self.load_sheet('SalesReceipt') if 'SalesReceipt' in available_sheet_names else pd.DataFrame()
+        sales_receipt_items_df = self.load_sheet('SalesReceiptItemLine') if 'SalesReceiptItemLine' in available_sheet_names else pd.DataFrame()
+        customers_df = self.load_sheet('Customer') if 'Customer' in available_sheet_names else pd.DataFrame()
         
         return bills_df, bill_items_df, sales_receipts_df, sales_receipt_items_df, customers_df
