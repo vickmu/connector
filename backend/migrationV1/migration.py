@@ -101,17 +101,31 @@ class Migration:
     
     def migrate_customers(self): 
         logger.info("Starting customer migration...")
-        customers = self.customer_ops.list_customers_by_fullname()
-        logger.info(f"Customers requested")
-        customers_name_list = [customer[0] for customer in customers]
-        customers_types_list = self.customer_ops.list_customer_types()
+        
+        # Try to open customers-cache first to save time
+        try:
+            logger.info(f"Opening customers cache...")
+            target_customers = pd.read_excel('customers-cache.xlsx')
+            logger.info(f"Customers cache found")
+            
+        except FileNotFoundError:
+            logger.info(f"Customers cache not found, fetching from database...")
+            customers = self.customer_ops.list_customers_by_fullname()        
+            target_customers = pd.DataFrame(customers, columns=['Name'])
+            target_customers.to_excel('customers-cache.xlsx', index=False)
+            logger.info(f"Customers cache created")
+        
+        customers_name_list = target_customers['Name'].to_list()    
+        
+        customers_types_list = self.customer_ops.list_customer_types()        
+        logger.info(f"Constructing CustomerType: ID")
         id_type = {key[1]: key[0] for key in customers_types_list}
-        logger.info(f"Customers types requested")
-        logger.info(f"Customers types: {id_type}")
         id_type['Default Customer Type'] = 'DWK'
+
         for _, customer in self.customers_df.iterrows():
             if customer['Name'] in customers_name_list:
-                continue            
+                logger.info(f'Skipping {customer['Name']}, exists in target_customers')
+                continue
             customer['CustomerTypeRefListID'] = id_type[
                 customer.get('CustomerTypeRefFullName', 'Default Customer Type')
             ]

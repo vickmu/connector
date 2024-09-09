@@ -113,7 +113,6 @@ class CustomerOperations(QBOperations):
             '{ship_address_country}'
         )
         """
-        logger.info(f"Executing query: {query}")  # Log the query
         try:
             # Execute the query
             self.cursor.execute(query)
@@ -121,5 +120,6 @@ class CustomerOperations(QBOperations):
             logger.error(f"Customer {name } inserted successfully.")
         except Exception as e:
             logger.error(f"Error inserting customer: {str(e)}")
+            logger.info(f"Executing query: {query}")  # Log the query
             logger.error(f"Customer: {customer_data}")
             # self.conn.rollback()
