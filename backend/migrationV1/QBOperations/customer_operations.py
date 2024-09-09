@@ -116,7 +116,7 @@ class CustomerOperations(QBOperations):
             '{ship_address_country}'
         )
         """
-        
+        logger.info(f"Executing query: {query}")  # Log the query
         try:
             # Execute the query
             self.cursor.execute(query)
