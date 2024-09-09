@@ -114,7 +114,7 @@ class CustomerOperations(QBOperations):
             '{ship_address_state}', 
             '{ship_address_postal_code}', 
             '{ship_address_country}'
-        );
+        )
         """
         
         try:
