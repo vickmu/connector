@@ -26,7 +26,7 @@ def get_dsn_name():
     """Prompt the user to enter the DSN name."""
     root = tk.Tk()
     root.withdraw()  # Hide the main tkinter window
-    dsn_name = simpledialog.askstring("DSN", "Enter the DSN name:")
+    dsn_name = simpledialog.askstring("DSN", "Enter the target DSN name:")
     return dsn_name
 
 def get_migration_type():
