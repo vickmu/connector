@@ -4,7 +4,7 @@ from .QBOperations.customer_operations import CustomerOperations
 from .QBOperations.vendor_operations import VendorOperations
 from .QBOperations.item_operations import ItemOperations
 from .QBOperations.bill_operations import BillOperations
-from .QBOperations.sales_receipt_operations import SalesOperations
+from .QBOperations.sales_receipt_operations import SalesReceiptOperations
 from .QBOperations.qb_operations import QBOperations
 import traceback
 logger = logging.getLogger(__name__)
@@ -24,7 +24,7 @@ class Migration:
         self.vendor_ops = VendorOperations(connection)
         self.item_ops = ItemOperations(connection)
         self.bill_ops = BillOperations(connection)
-        self.sales_receipt_ops = SalesOperations(connection)
+        self.sales_receipt_ops = SalesReceiptOperations(connection)
         self.customer_ops = CustomerOperations(connection)
 
     def migrate_vendors(self):
