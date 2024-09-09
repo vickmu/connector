@@ -102,9 +102,12 @@ class Migration:
     def migrate_customers(self): 
         logger.info("Starting customer migration...")
         customers = self.customer_ops.list_customers_by_fullname()
+        logger.info(f"Customers requested")
         customers_name_list = [customer[0] for customer in customers]
         customers_types_list = self.customer_ops.list_customer_types()
-        id_type = {key: value for key, value in customers_types_list}
+        id_type = {key[1]: key[0] for key in customers_types_list}
+        logger.info(f"Customers types requested")
+        logger.info(f"Customers types: {id_type}")
         id_type['Default Customer Type'] = 'DWK'
         for _, customer in self.customers_df.iterrows():
             if customer['FullName'] in customers_name_list:
