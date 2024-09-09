@@ -50,7 +50,7 @@ def main():
 
     # Step 3: Load Excel data
     excel_loader = ExcelLoader(file_path)
-    bills_df, bill_items_df, sales_receipts_df, sales_receipt_items_df = excel_loader.load_data()
+    bills_df, bill_items_df, sales_receipts_df, sales_receipt_items_df, customers_df = excel_loader.load_data()
     logger.info("Excel data loaded successfully.")
 
     # Step 4: Connect to QuickBooks via QODBC
@@ -59,7 +59,7 @@ def main():
 
     if conn:
         # Step 5: Run the migration
-        migration = Migration(conn, pd.DataFrame(), pd.DataFrame(), bills_df, bill_items_df, sales_receipts_df, sales_receipt_items_df)
+        migration = Migration(conn, pd.DataFrame(), pd.DataFrame(), bills_df, bill_items_df, sales_receipts_df, sales_receipt_items_df, customers_df)
         migration.run_migration()
 
 if __name__ == "__main__":

@@ -1,25 +1,31 @@
 import logging
+
+from .QBOperations.customer_operations import CustomerOperations
 from .QBOperations.vendor_operations import VendorOperations
 from .QBOperations.item_operations import ItemOperations
 from .QBOperations.bill_operations import BillOperations
-from .QBOperations.sales_operations import SalesOperations
+from .QBOperations.sales_receipt_operations import SalesOperations
 from .QBOperations.qb_operations import QBOperations
 import traceback
 logger = logging.getLogger(__name__)
 
 class Migration:
-    def __init__(self, connection, vendors_df, items_df, bills_df, bill_items_df, sales_receipt_df, sales_receipt_items_df):
+    def __init__(self, connection, vendors_df, items_df, bills_df, bill_items_df, sales_receipt_df, sales_receipt_items_df, customers_df):
+        
         self.connection = connection
         self.vendors_df = vendors_df
         self.items_df = items_df
         self.bills_df = bills_df
         self.bill_items_df = bill_items_df
         self.sales_receipt_df = sales_receipt_df
+        self.customers_df = customers_df
         self.sales_receipt_items_df = sales_receipt_items_df
+        
         self.vendor_ops = VendorOperations(connection)
         self.item_ops = ItemOperations(connection)
         self.bill_ops = BillOperations(connection)
         self.sales_receipt_ops = SalesOperations(connection)
+        self.customer_ops = CustomerOperations(connection)
 
     def migrate_vendors(self):
         logger.info("Starting vendor migration...")
@@ -80,14 +86,30 @@ class Migration:
                 is_last_line = (index == receipt_items.index[-1])
                 
                 self.sales_receipt_ops.insert_sales_receipt_item_line(receipt_item, receipt['RefNumber'], is_last_line=is_last_line)
+    
+    def migrate_customers(self): 
+        logger.info("Starting customer migration...")
+        customers = self.customer_ops.list_customers_by_fullname()
+        customers_name_list = [customer[0] for customer in customers]
+        customers_types_list = self.customer_ops.list_customer_types()
+        id_type = {key: value for key, value in customers_types_list}
+        id_type['Default Customer Type'] = 'DWK'
+        for _, customer in self.customer_df.iterrows():
+            if customer['FullName'] in customers_name_list:
+                continue            
+            customer['CustomerTypeRefListID'] = id_type[
+                customer.get('CustomerTypeRefFullName', 'Default Customer Type')
+            ]
+            self.customer_ops.insert_customer(customer)
         
-    def run_migration(self):
+    def run_migration(self, migration_type):
         """Run the full migration process."""
         try:
             # self.migrate_vendors()
             # self.migrate_items()
             # self.migrate_bills_and_items()
-            self.migrate_sales_receipts_and_items()
+            self.migrate_customers()
+            # self.migrate_sales_receipts_and_items()
             logger.info("Committing transaction...")
             QBOperations(self.connection).commit()
             logger.info("Migration process completed successfully.")

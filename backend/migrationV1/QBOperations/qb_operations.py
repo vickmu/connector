@@ -8,7 +8,7 @@ class QBOperations:
     def __init__(self, connection=None):
         self.conn = connection
         self.cursor = None if connection is None else self.conn.cursor()
-
+    
     def encode_input(self, value):
         """Utility to handle NaN, None, strings, bytes, and numbers appropriately."""
         # Handle NaN or None values by converting them to an empty string

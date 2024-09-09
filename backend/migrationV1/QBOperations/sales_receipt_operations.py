@@ -4,7 +4,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class SalesOperations(QBOperations):
+class SalesReceiptOperations(QBOperations):
     def get_sales_receipts(self):
         query = "SELECT * FROM SalesReceipt"
         self.cursor.execute(query)
@@ -19,7 +19,6 @@ class SalesOperations(QBOperations):
         query = "SELECT RefNumber FROM SalesReceipt"
         self.cursor.execute(query)
         return self.cursor.fetchall()
-
 
     def insert_sales_receipt_item_line(
         self, sales_item_data, ref_number, is_last_line=False
@@ -61,6 +60,6 @@ class SalesOperations(QBOperations):
         except Exception as e:
             logger.error(f"Error inserting sales receipt item line: {str(e)}")
             raise
-        print(
+        logger.info(
             f"Sales receipt item line for {sales_item_data['SalesReceiptLineItemRefFullName']} inserted successfully."
         )

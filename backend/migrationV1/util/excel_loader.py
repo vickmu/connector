@@ -18,7 +18,8 @@ class ExcelLoader:
         bill_items_df = self.load_sheet('BillItemLine')
         sales_receipts_df = self.load_sheet('SalesReceipt')
         sales_receipt_items_df = self.load_sheet('SalesReceiptItemLine')
+        customers_df = self.load_sheet('Customer')
         if bills_df is None or bill_items_df is None:
             return None, None
         
-        return bills_df, bill_items_df, sales_receipts_df, sales_receipt_items_df
+        return bills_df, bill_items_df, sales_receipts_df, sales_receipt_items_df, customers_df
