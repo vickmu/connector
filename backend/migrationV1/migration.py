@@ -106,7 +106,7 @@ class Migration:
         customers_types_list = self.customer_ops.list_customer_types()
         id_type = {key: value for key, value in customers_types_list}
         id_type['Default Customer Type'] = 'DWK'
-        for _, customer in self.customer_df.iterrows():
+        for _, customer in self.customers_df.iterrows():
             if customer['FullName'] in customers_name_list:
                 continue            
             customer['CustomerTypeRefListID'] = id_type[
