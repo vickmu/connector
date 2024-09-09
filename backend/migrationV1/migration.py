@@ -2,19 +2,24 @@ import logging
 from .QBOperations.vendor_operations import VendorOperations
 from .QBOperations.item_operations import ItemOperations
 from .QBOperations.bill_operations import BillOperations
+from .QBOperations.sales_operations import SalesOperations
+from .QBOperations.qb_operations import QBOperations
 import traceback
 logger = logging.getLogger(__name__)
 
 class Migration:
-    def __init__(self, connection, vendors_df, items_df, bills_df, bill_items_df):
+    def __init__(self, connection, vendors_df, items_df, bills_df, bill_items_df, sales_receipt_df, sales_receipt_items_df):
         self.connection = connection
         self.vendors_df = vendors_df
         self.items_df = items_df
         self.bills_df = bills_df
         self.bill_items_df = bill_items_df
+        self.sales_receipt_df = sales_receipt_df
+        self.sales_receipt_items_df = sales_receipt_items_df
         self.vendor_ops = VendorOperations(connection)
         self.item_ops = ItemOperations(connection)
         self.bill_ops = BillOperations(connection)
+        self.sales_receipt_ops = SalesOperations(connection)
 
     def migrate_vendors(self):
         logger.info("Starting vendor migration...")
@@ -42,7 +47,6 @@ class Migration:
     def migrate_bills_and_items(self):
         """Migrate bills and their associated items."""
         logger.info("Starting bill and item migration...")
-        txn_ids = {}
 
         bills = self.bill_ops.list_bills_by_ref_number()
         bills_ref_list = [bill[0] for bill in bills]
@@ -59,19 +63,35 @@ class Migration:
                 is_last_line = (index == bill_items.index[-1])
                 self.bill_ops.insert_bill_item_line(bill_item, bill['RefNumber'], is_last_line=is_last_line)
 
-        return txn_ids
+    
+    def migrate_sales_receipts_and_items(self): 
+        logger.info("Starting sales receipt and item migration...")
+        sales_receipts = self.sales_receipt_ops.list_sales_receipts_by_ref_number()        
+        sales_receipts_ref_list = [receipt[0] for receipt in sales_receipts]
+        
+        for _, receipt in self.sales_receipt_df.iterrows():
+            if receipt['RefNumber'] in sales_receipts_ref_list:
+                logger.info(f"Sales Receipt '{receipt['RefNumber']}' already exists, skipping insertion.")
+                continue
 
+            # Insert Sales Receipt Item Lines first, save each line to cache except the last one
+            receipt_items = self.sales_receipt_items_df[self.sales_receipt_items_df['RefNumber'] == receipt['RefNumber']]
+            for index, receipt_item in receipt_items.iterrows():
+                is_last_line = (index == receipt_items.index[-1])
+                
+                self.sales_receipt_ops.insert_sales_receipt_item_line(receipt_item, receipt['RefNumber'], is_last_line=is_last_line)
+        
     def run_migration(self):
         """Run the full migration process."""
         try:
             # self.migrate_vendors()
             # self.migrate_items()
-            self.migrate_bills_and_items()
-
-            # Commit the transaction after all steps
+            # self.migrate_bills_and_items()
+            self.migrate_sales_receipts_and_items()
             logger.info("Committing transaction...")
-            self.vendor_ops.commit()  # Committing through vendor_ops or any operation class
+            QBOperations(self.connection).commit()
             logger.info("Migration process completed successfully.")
+
         except Exception as e:
             logger.error(f"An error occurred during migration: {e}")
             logger.error(traceback.format_exc())

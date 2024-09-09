@@ -1,5 +1,6 @@
 import logging
 import pandas as pd
+import uuid
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +37,21 @@ class QBOperations:
         # Return the value as-is for other data types
         return value
 
+    def generate_unique_ref_number(self, original_ref_number):
+        """Generate a unique RefNumber if the original is missing or invalid."""
+        if not original_ref_number or str(original_ref_number).lower() == 'nan':
+            new_uuid = str(uuid.uuid4())[:20]  # Generate UUID and truncate it to 20 characters
+            logger.info(f"Original RefNumber is missing or NaN, generating a new one: {new_uuid}")
+            return new_uuid
+        return original_ref_number
+
+    def format_date(self, date_value):
+        """Format the date for QuickBooks insert (in {d'YYYY-MM-DD'} format)."""
+        return f"{{d'{date_value.strftime('%Y-%m-%d')}'}}" if date_value else "NULL"
+    
+    def format_timestamp(self, datetime_value):
+        """Format the timestamp for QuickBooks insert (in {ts'YYYY-MM-DD HH:MM:SS'} format)."""
+        return f"{{ts'{datetime_value.strftime('%Y-%m-%d %H:%M:%S')}'}}" if datetime_value else "NULL"
 
 
     def commit(self):
