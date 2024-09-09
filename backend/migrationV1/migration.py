@@ -19,7 +19,7 @@ class Migration:
         items_df=pd.DataFrame(),
         bills_df=pd.DataFrame(), 
         bill_items_df=pd.DataFrame(),
-        sales_receipt_df=pd.DataFrame(),
+        sales_receipts_df=pd.DataFrame(),
         sales_receipt_items_df=pd.DataFrame(),
         customers_df=pd.DataFrame()
     ):
@@ -29,7 +29,7 @@ class Migration:
         self.items_df = items_df
         self.bills_df = bills_df
         self.bill_items_df = bill_items_df
-        self.sales_receipt_df = sales_receipt_df
+        self.sales_receipt_df = sales_receipts_df
         self.customers_df = customers_df
         self.sales_receipt_items_df = sales_receipt_items_df
         
