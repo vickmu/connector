@@ -39,7 +39,6 @@ class CustomerOperations(QBOperations):
         
         # Extract and encode the customer data
         name = self.encode_input(customer_data.get('Name', ''))
-        full_name = self.encode_input(customer_data.get('FullName', ''))
         first_name = self.encode_input(customer_data.get('FirstName', ''))
         middle_name = self.encode_input(customer_data.get('MiddleName', ''))
         last_name = self.encode_input(customer_data.get('LastName', ''))
@@ -68,7 +67,6 @@ class CustomerOperations(QBOperations):
         query = f"""
         INSERT INTO Customer (
             Name,
-            FullName,
             FirstName,
             MiddleName,
             LastName,
@@ -92,7 +90,6 @@ class CustomerOperations(QBOperations):
             ShipAddressCountry
         ) VALUES (
             '{name}', 
-            '{full_name}', 
             '{first_name}', 
             '{middle_name}', 
             '{last_name}', 
@@ -121,7 +118,7 @@ class CustomerOperations(QBOperations):
             # Execute the query
             self.cursor.execute(query)
             self.conn.commit()
-            print(f"Customer {full_name} inserted successfully.")
+            print(f"Customer {name } inserted successfully.")
         except Exception as e:
             print(f"Error inserting customer: {str(e)}")
             self.conn.rollback()
