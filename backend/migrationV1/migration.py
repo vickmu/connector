@@ -84,19 +84,46 @@ class Migration:
     
     def migrate_sales_receipts_and_items(self): 
         logger.info("Starting sales receipt and item migration...")
-        sales_receipts = self.sales_receipt_ops.list_sales_receipts_by_ref_number()        
-        sales_receipts_ref_list = [receipt[0] for receipt in sales_receipts]
+        # Try to open salesreciptitem-cache first to save time
+        try:
+            logger.info(f"Opening salesreceiptitem cache...")
+            target_salesreceiptitem = pd.read_excel('salesreceiptitem-cache.xlsx')
+            logger.info(f"salesreceiptitem cache found")
+            
+        except FileNotFoundError:
+            logger.info(f"salesreceiptitem cache not found, fetching from database...")
+            salesreceiptitem = self.sales_receipt_ops.get_sales_receipt_id_after_date('2023-01-01')
+            target_salesreceiptitem = pd.DataFrame(salesreceiptitem, columns=['RefNumber'])
+            target_salesreceiptitem.to_excel('salesreceiptitem-cache.xlsx', index=False)
+            logger.info(f"Customers cache created")
         
-        for _, receipt in self.sales_receipt_df.iterrows():
-            if receipt['RefNumber'] in sales_receipts_ref_list:
+        try: 
+            logger.info(f"Starting Item Retrieval")
+            target_items_df = pd.read_excel('items-cache.xlsx')
+            logger.info("items cache found")
+
+        except FileNotFoundError:
+            logger.info(f"item cache not found, fetching from database...")
+            item = self.item_ops.list_items_by_name()
+            target_items_df = pd.DataFrame(item, columns=['Name', 'ListID'])
+            target_items_df.to_excel('item-cache.xlsx', index=False)
+            logger.info(f"items cache created")
+
+        if target_items_df.empty: 
+            logger.error(f'Could not retrieve items. {target_items_df.size}')
+            return 
+
+        items_dict = target_items_df.to_dict('records')
+
+        for _, receipt in self.sales_receipt_items_df.iterrows():
+            if receipt['RefNumber'] in target_salesreceiptitem:
                 logger.info(f"Sales Receipt '{receipt['RefNumber']}' already exists, skipping insertion.")
                 continue
 
-            # Insert Sales Receipt Item Lines first, save each line to cache except the last one
             receipt_items = self.sales_receipt_items_df[self.sales_receipt_items_df['RefNumber'] == receipt['RefNumber']]
             for index, receipt_item in receipt_items.iterrows():
                 is_last_line = (index == receipt_items.index[-1])
-                
+                receipt_item['SalesReceiptLineItemRefListID'] = items_dict[receipt_item['ListID']] 
                 self.sales_receipt_ops.insert_sales_receipt_item_line(receipt_item, receipt['RefNumber'], is_last_line=is_last_line)
     
     def migrate_customers(self): 
@@ -121,8 +148,10 @@ class Migration:
         logger.info(f"Constructing CustomerType: ID")
         id_type = {key[1]: key[0] for key in customers_types_list}
         id_type['Default Customer Type'] = 'DWK'
-
+        logger.info(f'Customers list: {customers_name_list[:30]}')
         for _, customer in self.customers_df.iterrows():
+            logger.info(f"customer['Name']: {customer['Name']}")
+
             if customer['Name'] in customers_name_list:
                 logger.info(f'Skipping {customer['Name']}, exists in target_customers')
                 continue
@@ -142,7 +171,8 @@ class Migration:
         customers_names_list = [customer[0] for customer in customers]
 
         for _, receipt_line_item in self.sales_receipt_items_df: 
-            if receipt_line_item['RefNumber'] 
+            if receipt_line_item['RefNumber'] : 
+                pass
             
         
     def run_migration(self, migration_type: MigrationType):
