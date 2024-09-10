@@ -4,8 +4,8 @@ from migrator.util.config import QBConfig
 from migrator.util.excel_loader import ExcelLoader
 from migrator.util.logger_config import setup_logging
 
-from .services.migrations.migration_manager import MigrationManager
-from .util.gui import get_dsn_name, get_file_location, get_migration_type
+from migrator.services.migrations.migration_manager import MigrationManager
+from migrator.util.gui import get_dsn_name, get_file_location, get_migration_type
 setup_logging()
 logger = logging.getLogger(__name__)
 
