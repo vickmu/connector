@@ -1,0 +1,8 @@
+test_data
+logs
+__pycache__
+build
+dist
+myenv
+node_modules
+*.xlsx
