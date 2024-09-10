@@ -12,7 +12,7 @@ class ItemOperations(QBOperations):
         return result[0] > 0
 
     def list_items_by_name(self):
-        query = u"SELECT Name FROM Item"
+        query = u"SELECT Name, ListID FROM Item"
         self.cursor.execute(query)
         return self.cursor.fetchall()
 

@@ -43,10 +43,11 @@ class SalesReceiptOperations(QBOperations):
             SalesReceiptLineQuantity,
             SalesReceiptLineAmount,
             SalesReceiptLineRate,
+            SalesReceiptLineItemRefListID,
             FQSaveToCache
         ) 
         VALUES (
-            '{self.encode_input(sales_item_data['CustomerRefListID'])}', 
+            '80001769-1207600856', 
             '{self.format_date(sales_item_data['TxnDate'])}', 
             '{self.encode_input(ref_number)}', 
             '{self.encode_input(sales_item_data['PaymentMethodRefListID'])}', 
@@ -57,6 +58,7 @@ class SalesReceiptOperations(QBOperations):
             '{self.encode_input(sales_item_data['SalesReceiptLineQuantity'])}', 
             '{self.encode_input(sales_item_data['SalesReceiptLineAmount'])}', 
             '{self.encode_input(sales_item_data['SalesReceiptLineRate'])}', 
+            '{self.encode_input(sales_item_data['SalesReceiptLineItemRefListID'])}', 
             '{0 if is_last_line else 1}'
         );
         """

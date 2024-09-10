@@ -63,6 +63,7 @@ class CustomerOperations(QBOperations):
         ship_address_postal_code = self.encode_input(customer_data.get('ShipAddressPostalCode', ''))
         ship_address_country = self.encode_input(customer_data.get('ShipAddressCountry', ''))
         
+        email = self.encode_input(customer_data.get('Email'))
         # Construct the SQL query
         query = f"""
         INSERT INTO Customer (
@@ -87,7 +88,8 @@ class CustomerOperations(QBOperations):
             ShipAddressCity,
             ShipAddressState,
             ShipAddressPostalCode,
-            ShipAddressCountry
+            ShipAddressCountry,
+            Email
         ) VALUES (
             '{name}', 
             '{first_name}', 
@@ -110,16 +112,17 @@ class CustomerOperations(QBOperations):
             '{ship_address_city}', 
             '{ship_address_state}', 
             '{ship_address_postal_code}', 
-            '{ship_address_country}'
+            '{ship_address_country}',
+            '{email}'
         )
         """
         try:
             # Execute the query
             self.cursor.execute(query)
             self.conn.commit()
-            logger.error(f"Customer {name } inserted successfully.")
+            logger.error(f"Customer {name} inserted successfully.")
         except Exception as e:
             logger.error(f"Error inserting customer: {str(e)}")
             logger.info(f"Executing query: {query}")  # Log the query
-            logger.error(f"Customer: {customer_data}")
+            # raise
             # self.conn.rollback()
